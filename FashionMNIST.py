@@ -60,11 +60,11 @@ if torch.cuda.is_available():
     dev = "cuda:0"
 else:
     dev = "cpu"
-    
-print('We are using:', device)
+
 
 
 device = torch.device(dev)
+print('We are using:', device)
 
 #Putting model and data on GPU
 model = model.cuda(device)
