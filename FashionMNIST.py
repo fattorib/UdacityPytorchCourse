@@ -32,16 +32,17 @@ hidden_1,hidden_2 = 256,128
 class Network(nn.Module):
     def __init__(self):
         super().__init__()
-        self.input = nn.Linear(784,hidden_1)
-        self.fc1 = nn.Linear(hidden_1,hidden_2)
-        self.output = nn.Linear(hidden_2,10)
+        self.fc1 = nn.Linear(784,hidden_1)
+        self.fc2 = nn.Linear(hidden_1,hidden_2)
+        self.fc3 = nn.Linear(hidden_2,10)
         
+        self.dropout = nn.Dropout(p= 0.2)
 
 
     def forward(self, x):
-        x = F.relu(self.input(x))
         x = F.relu(self.fc1(x))
-        x = self.output(x)
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
         x = F.log_softmax(x,dim = 1)
         return x
     
@@ -63,9 +64,9 @@ print('We are using:', device)
 #Putting model and data on GPU
 model = model.cuda(device)
 
-epochs = 6
+epochs = 10
 
-for epoch in range(0,epochs):
+for e in range(0,epochs):
     #Code for single epoch
     running_loss = 0
     for images, labels in trainloader:
@@ -82,10 +83,46 @@ for epoch in range(0,epochs):
         #advancing optimizer
         optimizer.step()
         running_loss += loss.item()
-    print(running_loss/len(trainloader))
+        
+    if e%2 == 0:
+        print(running_loss/len(trainloader))
 
 
 
+model = model.cpu()
+
+#Calling .eval() to turn off dropout
+model.eval()
+with torch.no_grad():
+    accuracy = 0
+    for images, labels in testloader:
+        images = images.view(images.shape[0],-1)
+        log_ps = model(images)
+        ps = torch.exp(log_ps)
+        top_p, top_class = ps.topk(1, dim=1)
+        equals = top_class == labels.view(*top_class.shape)
+        accuracy += torch.mean(equals.type(torch.FloatTensor))
+            
+
+    print("Test Accuracy:",accuracy.item()/len(testloader))
+
+
+model.eval()
+with torch.no_grad():
+    accuracy = 0
+    for images, labels in trainloader:
+        images = images.view(images.shape[0],-1)
+        log_ps = model(images)
+        ps = torch.exp(log_ps)
+        top_p, top_class = ps.topk(1, dim=1)
+        equals = top_class == labels.view(*top_class.shape)
+        accuracy += torch.mean(equals.type(torch.FloatTensor))
+            
+
+    print("Train Accuracy:",accuracy.item()/len(trainloader))
+
+
+'''
 import helper
 
 # Test out your network!
@@ -104,3 +141,4 @@ ps = torch.exp(model.forward(img))
 
 # Plot the image and probabilities
 helper.view_classify(img.resize_(1, 28, 28), ps, version='Fashion')
+'''
