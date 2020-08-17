@@ -23,12 +23,6 @@ testset = datasets.FashionMNIST('~/.pytorch/F_MNIST_data/', download=True, train
 testloader = torch.utils.data.DataLoader(testset, batch_size=64, shuffle=True)
 
 
-'''
-To do:
-    1) Flatten all images
-    2) Create network
-    3) Create optimizer and training schedule
-'''
 
 for images, labels in trainloader:
     images = images.view(images.shape[0],-1)
@@ -69,7 +63,7 @@ print('We are using:', device)
 #Putting model and data on GPU
 model = model.cuda(device)
 
-epochs = 5
+epochs = 6
 
 for epoch in range(0,epochs):
     #Code for single epoch
@@ -95,12 +89,15 @@ for epoch in range(0,epochs):
 import helper
 
 # Test out your network!
+import matplotlib
 
 dataiter = iter(testloader)
 images, labels = dataiter.next()
 img = images[0]
 # Convert 2D image to 1D vector
 img = img.resize_(1, 784)
+
+model = model.cpu()
 
 # TODO: Calculate the class probabilities (softmax) for img
 ps = torch.exp(model.forward(img))
