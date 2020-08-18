@@ -42,7 +42,8 @@ To-do:
     3) Train using GPU
 '''
 
-model = models.resnet152(pretrained=True)
+model = models.resnet34(pretrained=True)
+
 
 #Freeze all non-classifier parameters
 for param in model.parameters():
@@ -54,9 +55,9 @@ for param in model.parameters():
 from collections import OrderedDict
 
 #Redefining classifier 
-fc = nn.Sequential(OrderedDict([('fc1', nn.Linear(2048,512)),
+fc = nn.Sequential(OrderedDict([('fc1', nn.Linear(512,256)),
                                 ('ReLU', nn.ReLU()),
-                                ('fc2', nn.Linear(512,2)),
+                                ('fc2', nn.Linear(256,2)),
                                 ('output', nn.LogSoftmax(dim = 1))]))
 
 
